@@ -1,50 +1,33 @@
 import pickle
 
-#########################
+#######################################################################################################
 # 
-#         BACKUP
+#                                               BACKUP
 # 
-##########################
+########################################################################################################
 
+# backup file name
 backup = 'backup.data'
 
-# find backup
+# try load from existed backup
 try:
-    f = open('backup.data')
-    f.close()
-    backup_doesnt_exist = False
-    print('backup exist')
+    f = open(backup, 'rb')
+    addressBook = pickle.load(f)
+    f.close()     
 
-# create backup
+# or create backup
 except FileNotFoundError:
-    backup_doesnt_exist = True
-    print('Backup DOESNT exist')
-
-
-
-
-if backup_doesnt_exist:
-    print('we create backup')
-    
     addressBook = []
     f = open(backup, 'wb')
     pickle.dump(addressBook,f)
     f.close()
-    
 
-else:    
-    print('we dont need create backup')
     
-    f = open(backup, 'rb')
-    addressBook = pickle.load(f)
-    f.close()
-    
-    
-#########################
+#######################################################################################################
 # 
-#         MESSAGES
+#                                               MSG'S
 # 
-##########################
+########################################################################################################
 
 msh_book_is_empty = 'Address book is empty'
 
@@ -53,44 +36,46 @@ msh_book_is_empty = 'Address book is empty'
 
 while True:
 
-    # needAutosave = False
-    
+    # main menu
     command = input('\nadd/del/show/edit/exit: ')
     
-    #########################
+    #######################################################################################################
     # 
-    #          ADD
+    #                                           ADD
     # 
-    ##########################
+    ########################################################################################################
    
-    if command == 'add':
-
+    if command == 'add' or command == 'a':
+        
+        # boilerplate for new contact 
         new_contact = {'name': '',
                        'phone': '',
                        'email': '',
                        'group': ''}
         
+        # user enters new contact details
         for key in new_contact:
             new_contact[key] = input(f'{key}: ')
+            if new_contact[key] == '':
+                new_contact[key] = '<not set>'
 
-        contact_already_exist = False
-        
-        for existed_contact in addressBook:
+        # cancel if new name matches existing names
+        for existed_contact in addressBook:            
             if new_contact['name'] == existed_contact['name']:
                 print(existed_contact['name'], 'already exist')
-                contact_already_exist = True
-                
-        if not contact_already_exist:
-                addressBook.append(new_contact)
-                print(new_contact['name'], 'was added')
+                continue
+        
+        # the name is unique - add to the address book
+        addressBook.append(new_contact)
+        print(new_contact['name'], 'was added')
     
     
     
-    #########################
+    #######################################################################################################
     # 
-    #          DEL
+    #                                            DEL
     # 
-    ##########################
+    ########################################################################################################
     
     elif command == 'del':
         
@@ -155,11 +140,11 @@ while True:
     
     
     
-    #########################
+    #######################################################################################################
     # 
-    #          SHOW
+    #                                            SHOW
     # 
-    ##########################
+    ########################################################################################################
                
     elif command == 'show':
        
@@ -172,7 +157,7 @@ while True:
             if command == 'all':
                 for contact in addressBook:
                     for key in contact:
-                        print(key, contact[key],end=' ')
+                        print(key, contact[key],end='; ')
                     print()
                     
             elif command =='name':
@@ -185,11 +170,11 @@ while True:
                 print('unknown command')
     
     
-    #########################
+    #######################################################################################################
     # 
-    #          EDIT
+    #                                               EDIT
     # 
-    ##########################
+    ########################################################################################################
     
     elif command == 'edit':
         
@@ -234,11 +219,11 @@ while True:
     
     
     
-    #########################
+    #######################################################################################################
     # 
-    #          EXIT
+    #                                               EXIT
     # 
-    ##########################
+    ########################################################################################################
     elif command == 'exit':
         print('See you!')
         break
@@ -247,20 +232,50 @@ while True:
         print('unknowh command')    
 
 
-    #########################
+    #######################################################################################################
     # 
-    #          AUTOSAVE
+    #                                              AUTOSAVE
     # 
-    ########################## 
+    ########################################################################################################
     
-    print('all data was saved')    
     f = open(backup, 'wb')
     pickle.dump(addressBook,f)
     f.close()
-    
+    print('all data was saved')
 
 
 
-# backup only when data was changed
-# NO GROUP when group doesnt set
-# show 
+
+
+
+
+
+
+
+
+
+
+
+
+#######################################################################################################
+# 
+#                                                   TO DO
+# 
+########################################################################################################
+
+# BACKUP
+# autosave only when data was changed
+
+# SHOW
+#  show name/group
+#  beautify displaying
+
+# ADD
+# fix options to create noname contact
+# name checking after entering new name
+
+# MSG'S --> SYSTEM MSG'S 
+# unknown command
+
+# GLOBAL
+# add or input commands
