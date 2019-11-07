@@ -9,17 +9,17 @@ import pickle
 # backup file name
 backup = 'backup.data'
 
-# try load from existed backup
+# try load address book from existed backup
 try:
     f = open(backup, 'rb')
-    addressBook = pickle.load(f)
+    address_book = pickle.load(f)
     f.close()     
 
-# or create backup
+# or create empty address book and backup
 except FileNotFoundError:
-    addressBook = []
+    address_book = []
     f = open(backup, 'wb')
-    pickle.dump(addressBook,f)
+    pickle.dump(address_book,f)
     f.close()
 
     
@@ -29,7 +29,8 @@ except FileNotFoundError:
 # 
 ########################################################################################################
 
-msh_book_is_empty = 'Address book is empty'
+msg_book_is_empty = 'Address book is empty'
+msg_unknown_command = 'Unknown command'
 
 
 
@@ -37,7 +38,7 @@ msh_book_is_empty = 'Address book is empty'
 while True:
 
     # main menu
-    command = input('\nadd/del/show/edit/exit: ')
+    command = input('\nadd/del/show/edit/quit: ')
     
     #######################################################################################################
     # 
@@ -45,7 +46,7 @@ while True:
     # 
     ########################################################################################################
    
-    if command == 'add' or command == 'a':
+    if command == 'a':
         
         # boilerplate for new contact 
         new_contact = {'name': '',
@@ -62,14 +63,14 @@ while True:
         new_name_is_unique = True
         
         # compare new name with existed names
-        for existed_contact in addressBook:
+        for existed_contact in address_book:
             if new_contact['name'] == existed_contact['name']:
                 print(existed_contact['name'], 'already exist')
                 new_name_is_unique = False
             
         # the name is unique - add to the book  
         if new_name_is_unique:
-            addressBook.append(new_contact)
+            address_book.append(new_contact)
             print(new_contact['name'], 'was added')        
     
     
@@ -80,65 +81,67 @@ while True:
     # 
     ########################################################################################################
     
-    elif command == 'del':
+    elif command == 'd':
         
-        if len(addressBook) == 0:
-            print(msh_book_is_empty)
+        # we cant edin empty book 
+        if len(address_book) == 0:
+            print(msg_book_is_empty)
+            continue
+        
+        # user pick removal options
+        delete_option = input('Delete all/name/group: ')
             
-        else:
-            command = input('all/name/group? ')
-            
+        # delete all contacs
+        if delete_option == 'a':
+                
             # confirm before delete all contacts
-            if command == 'all':
-                command = input('are you shure? (y/n)')
+            delete_all_confirmation = input(f'Are you sure you want to delete all {len(address_book)} contacts? (y/n): ')
                 
-                if command == 'y':
-                    addressBook = []
-                    print('all contacts was deleted')
-                else:
-                    continue
+            if delete_all_confirmation == 'y':
+                address_book = []
+                print('All contacts was deleted!')
             
+        # delete contact by name
+        elif delete_option == 'n':
+                
+            name_for_deleted = input('Enter the name: ')                
+
+            # compare name with existed names
+            no_one_removed = True
+            for contact in address_book:                    
+                if contact['name'] == name_for_deleted:
+                    address_book.remove(contact)
+                    print(f'{name_for_deleted} was deleted')                        
+                    no_one_removed = False
             
-            elif command == 'name':
-                
-                someoneWasRemoved = False
-                
-                command = input('enter the name: ')
-                i = 0
-                for contact in addressBook:
-                    
-                    if contact['name'] == command:
-                        del addressBook[i]
-                        print(contact['name'], 'was deleted')
-                        someoneWasRemoved = True
-                    i += 1
-                    
-                if not someoneWasRemoved:
-                    print('no contact whith that name')
+            # name not found   
+            if no_one_removed:
+                print('No contact whith that name')
             
-            elif command == 'group':                
+        # delete group of contacts
+        elif delete_option == 'g':                
                 
-                command = input('enter the group: ')
-                
-                i = 0
-                ids_for_del = []
-                
-                for contact in addressBook:
-                    if contact['group'] == command:
-                        ids_for_del.append(i)
-                    i += 1
-                
-                if len(ids_for_del) == 0:
-                    print(f'group \'{command}\' doesn\'t exist')
-                
-                else: 
-                    for i in ids_for_del[::-1]:
-                        del addressBook[i]
-                    
-                    print(f'group \'{command}\' was deleted')
-           
+            command = input('Which group do you want to delete: ')
+
+            deleted_contacts_counter = 0
+            
+            # compare group name with contacts group
+            for contact in address_book[::-1]:
+                if contact['group'] == command:
+                    address_book.remove(contact)
+                    deleted_contacts_counter += 1
+            
+            # group no found
+            if deleted_contacts_counter == 0:
+                print(f'Group \'{command}\' doesn\'t exist')
+            
+            # group found and destroyed
             else:
-                print('unknown command')
+                print(f'{deleted_contacts_counter} contacts was deleted')                   
+        
+        # unknown command    
+        else:
+            print(msg_unknown_command)
 
     
     
@@ -149,24 +152,24 @@ while True:
     # 
     ########################################################################################################
                
-    elif command == 'show':
+    elif command == 's':
        
-        if len(addressBook) == 0:
-            print(msh_book_is_empty)
+        if len(address_book) == 0:
+            print(msg_book_is_empty)
         
         else:
-            command = input('all/name/group?: ')
+            command = input('Show all/name/group?: ')
             
-            if command == 'all':
-                for contact in addressBook:
+            if command == 'a':
+                for contact in address_book:
                     for key in contact:
                         print(key, contact[key],end='; ')
                     print()
                     
-            elif command =='name':
+            elif command =='n':
                 print('name case')
                 
-            elif command == 'group':
+            elif command == 'g':
                 print('group case')
                 
             else:
@@ -179,11 +182,11 @@ while True:
     # 
     ########################################################################################################
     
-    elif command == 'edit':
+    elif command == 'e':
         
         # we cant edit emty address book
-        if len(addressBook) == 0:
-            print(msh_book_is_empty)
+        if len(address_book) == 0:
+            print(msg_book_is_empty)
             continue        
         
         # contact name for editing
@@ -192,7 +195,7 @@ while True:
         # searching contact whith required name
         i = 0        
         contac_found = False
-        for contact in addressBook:
+        for contact in address_book:
             if command == contact['name']:
                 contac_found = True
             else:
@@ -209,9 +212,9 @@ while True:
             command = input('name/phone/email/group: ')            
             
             # existing field selected
-            if command in addressBook[i].keys():
-                # print(addressBook[i][command])
-                addressBook[i][command] = input(f'enter new {command}: ')
+            if command in address_book[i].keys():
+                # print(address_book[i][command])
+                address_book[i][command] = input(f'enter new {command}: ')
                 print(f'{command} was changed')
             
             # nonexistent field selected
@@ -227,7 +230,7 @@ while True:
     #                                               EXIT
     # 
     ########################################################################################################
-    elif command == 'exit':
+    elif command == 'q':
         print('See you!')
         break
     
@@ -242,7 +245,7 @@ while True:
     ########################################################################################################
     
     f = open(backup, 'wb')
-    pickle.dump(addressBook,f)
+    pickle.dump(address_book,f)
     f.close()
     print('all data was saved')
 
