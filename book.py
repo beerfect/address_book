@@ -58,16 +58,19 @@ while True:
             new_contact[key] = input(f'{key}: ')
             if new_contact[key] == '':
                 new_contact[key] = '<not set>'
-
-        # cancel if new name matches existing names
-        for existed_contact in addressBook:            
+        
+        new_name_is_unique = True
+        
+        # compare new name with existed names
+        for existed_contact in addressBook:
             if new_contact['name'] == existed_contact['name']:
                 print(existed_contact['name'], 'already exist')
-                continue
-        
-        # the name is unique - add to the address book
-        addressBook.append(new_contact)
-        print(new_contact['name'], 'was added')
+                new_name_is_unique = False
+            
+        # the name is unique - add to the book  
+        if new_name_is_unique:
+            addressBook.append(new_contact)
+            print(new_contact['name'], 'was added')        
     
     
     
@@ -279,3 +282,6 @@ while True:
 
 # GLOBAL
 # add or input commands
+
+# DEL
+# deleting by name works incorrect when there are 3 contacts with same name
