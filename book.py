@@ -31,14 +31,22 @@ except FileNotFoundError:
 
 msg_book_is_empty = 'Address book is empty'
 msg_unknown_command = 'Unknown command'
+msg_welcome = '''This is address book
+for choose command - enter only first letter
+exapmple:   add  --> a
+            del  --> d
+            show --> s
+What do you want to do?'''
 
 
 
+print(msg_welcome)
 
 while True:
 
+    data_has_been_changed = False
     # main menu
-    command = input('\nadd/del/show/edit/quit: ')
+    command = input('add/del/show/edit/quit: ')
     
     #######################################################################################################
     # 
@@ -71,7 +79,8 @@ while True:
         # the name is unique - add to the book  
         if new_name_is_unique:
             address_book.append(new_contact)
-            print(new_contact['name'], 'was added')        
+            print(new_contact['name'], 'was added')
+            data_has_been_changed = True     
     
     
     
@@ -100,6 +109,7 @@ while True:
             if delete_all_confirmation == 'y':
                 address_book = []
                 print('All contacts was deleted!')
+                data_has_been_changed = True
             
         # delete contact by name
         elif delete_option == 'n':
@@ -113,6 +123,7 @@ while True:
                     address_book.remove(contact)
                     print(f'{name_for_deleted} was deleted')                        
                     no_one_removed = False
+                    data_has_been_changed = True
             
             # name not found   
             if no_one_removed:
@@ -137,7 +148,8 @@ while True:
             
             # group found and destroyed
             else:
-                print(f'{deleted_contacts_counter} contacts was deleted')                   
+                print(f'{deleted_contacts_counter} contacts was deleted')
+                data_has_been_changed = True            
         
         # unknown command    
         else:
@@ -216,10 +228,11 @@ while True:
                 # print(address_book[i][command])
                 address_book[i][command] = input(f'enter new {command}: ')
                 print(f'{command} was changed')
+                data_has_been_changed = True
             
             # nonexistent field selected
             else:
-                print('Nonexisted field')
+                print(f'Field {command} doesn\'t exist')
                 continue
     
     
@@ -235,7 +248,7 @@ while True:
         break
     
     else:
-        print('unknowh command')    
+        print(f'Unknowh command \'{command}\'')    
 
 
     #######################################################################################################
@@ -243,11 +256,11 @@ while True:
     #                                              AUTOSAVE
     # 
     ########################################################################################################
-    
-    f = open(backup, 'wb')
-    pickle.dump(address_book,f)
-    f.close()
-    print('all data was saved')
+    if data_has_been_changed:
+        f = open(backup, 'wb')
+        pickle.dump(address_book,f)
+        f.close()
+        print('Backup complete')
 
 
 
@@ -268,9 +281,6 @@ while True:
 #                                                   TO DO
 # 
 ########################################################################################################
-
-# BACKUP
-# autosave only when data was changed
 
 # SHOW
 #  show name/group
