@@ -32,7 +32,7 @@ except FileNotFoundError:
 msg_book_is_empty = 'Address book is empty'
 msg_unknown_command = 'Unknown command'
 msg_welcome = '''This is address book
-for choose command - enter only first letter
+For choose command - enter only first letter
 exapmple:   add  --> a
             del  --> d
             show --> s
@@ -163,29 +163,60 @@ while True:
     #                                            SHOW
     # 
     ########################################################################################################
-               
+    
     elif command == 's':
-       
+        
+        # nothing to show in an empty book          
         if len(address_book) == 0:
             print(msg_book_is_empty)
+            continue
         
-        else:
-            command = input('Show all/name/group?: ')
+        
+        command = input('Show all/name/group?: ')
+        
+        # show all
+        if command == 'a':
+            # print()
+            for contact in address_book:
+                for key in contact:
+                    print(f'{key:<5} {contact[key]:<25}',end=' ')
+                print()
+
+        # show contact by name
+        elif command =='n':
+            name_of_displayed_contact = input('Enter the name: ')
+            name_not_found = True
             
-            if command == 'a':
-                for contact in address_book:
+            # searching contact whith required name
+            for contact in address_book:
+                if contact['name'] == name_of_displayed_contact:
+                    name_not_found = False
                     for key in contact:
-                        print(key, contact[key],end='; ')
+                        print(f'{key: <5} {contact[key]}')
+            
+            if name_not_found:
+                print(f'Contact with name \'{name_of_displayed_contact}\' not found')    
+                
+        # show group of contacts
+        elif command == 'g':
+            name_of_displayed_group = input('Enter the group: ')
+            group_not_found = True
+            
+            # searching group whith required name
+            for contact in address_book:
+                if contact['group'] == name_of_displayed_group:
+
+                    group_not_found = False
+                    for key in contact:
+                        print(f'{key:<5} {contact[key]:<25}',end=' ')
                     print()
-                    
-            elif command =='n':
-                print('name case')
+            
+            if group_not_found:
+                print(f'Group with name \'{name_of_displayed_group}\' not found')    
+
                 
-            elif command == 'g':
-                print('group case')
-                
-            else:
-                print('unknown command')
+        else:
+            print('unknown command')
     
     
     #######################################################################################################
@@ -220,12 +251,11 @@ while True:
         # search returned results
         else:
             # field selection for editing
-            print('what field you wanna edit?')
+            print('What field you wanna edit?')
             command = input('name/phone/email/group: ')            
             
             # existing field selected
             if command in address_book[i].keys():
-                # print(address_book[i][command])
                 address_book[i][command] = input(f'enter new {command}: ')
                 print(f'{command} was changed')
                 data_has_been_changed = True
@@ -240,7 +270,7 @@ while True:
     
     #######################################################################################################
     # 
-    #                                               EXIT
+    #                                               QUIT
     # 
     ########################################################################################################
     elif command == 'q':
@@ -257,6 +287,10 @@ while True:
     # 
     ########################################################################################################
     if data_has_been_changed:
+        # sorting contacts by name
+        address_book.sort(key=lambda i: i['name'])
+        
+        # backup
         f = open(backup, 'wb')
         pickle.dump(address_book,f)
         f.close()
@@ -282,10 +316,6 @@ while True:
 # 
 ########################################################################################################
 
-# SHOW
-#  show name/group
-#  beautify displaying
-
 # ADD
 # fix options to create noname contact
 # name checking after entering new name
@@ -295,6 +325,3 @@ while True:
 
 # GLOBAL
 # add or input commands
-
-# DEL
-# deleting by name works incorrect when there are 3 contacts with same name
